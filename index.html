@@ -151,17 +151,24 @@
   .stat{padding:8px;gap:6px}
 }
 
+
+.site-pill{font-size:9px;font-weight:800;letter-spacing:.06em;color:#245777;background:#eaf2f8;border:1px solid #d2e0eb;border-radius:99px;padding:8px 11px;white-space:nowrap}
+.brand-site{display:inline-block;margin-top:5px;color:#e6d29a;font-size:9px;letter-spacing:.07em}
+.pagination{display:flex;align-items:center;justify-content:center;gap:14px;padding:16px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)}
+.pagination button:disabled{opacity:.4;cursor:not-allowed}
+@media(max-width:520px){.site-pill{font-size:8px;padding:7px 8px}.top-right{flex-wrap:wrap;justify-content:flex-end}.pagination{gap:8px}.pagination button{padding:8px 9px}}
+
 </style>
 </head>
 <body>
 <div class="app"><aside class="sidebar">
-<div class="brand"><img class="crest" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Badge_of_the_Royal_Malaysian_Air_Force.svg" alt="Lencana TUDM"><div><div class="brand-title">IPMS TUDM</div><div class="brand-sub">IDENTITY &amp; PROFILING<br>MANAGEMENT SYSTEM</div></div></div>
+<div class="brand"><img class="crest" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Badge_of_the_Royal_Malaysian_Air_Force.svg" alt="Lencana TUDM"><div><div class="brand-title">IPMS TUDM</div><div class="brand-sub">IDENTITY &amp; PROFILING<br>MANAGEMENT SYSTEM<br><b class="brand-site">PANGKALAN UDARA SUBANG</b></div></div></div>
 <div><div class="nav-label">MENU UTAMA</div><nav class="nav">
 <a href="#dashboard" data-page="dashboard" class="active"><span class="ico">▦</span>Ringkasan</a><a href="#profiles" data-page="profiles"><span class="ico">♙</span>Direktori Profil</a><a href="#visitors" data-page="visitors"><span class="ico">◎</span>Pelawat</a><a href="#contractors" data-page="contractors"><span class="ico">▤</span>Kontraktor</a><a href="#requests" data-page="requests"><span class="ico">▣</span>Rekod Pentadbiran</a><a href="#cards" data-page="cards"><span class="ico">▧</span>Kad Demo</a><a href="#access" data-page="access"><span class="ico">◷</span>Rekod Kemasukan</a></nav></div>
 <div><div class="nav-label">PENGURUSAN</div><nav class="nav"><a href="#users" data-page="users"><span class="ico">♧</span>Pengguna &amp; Peranan</a><a href="#reports" data-page="reports"><span class="ico">▤</span>Laporan</a><a href="#audit" data-page="audit"><span class="ico">◷</span>Log Aktiviti</a><a href="#settings" data-page="settings"><span class="ico">⚙</span>Konfigurasi</a></nav></div>
 <div class="sidebar-note"><strong>MOD DEMONSTRASI</strong>Data rekaan sahaja. Bukan sistem rasmi TUDM. Tiada sambungan kepada sistem operasi, reader sebenar atau kawalan akses fizikal.</div></aside>
-<main class="main"><div class="topbar"><div class="crumb">IPMS / <b id="page-title">Ringkasan</b></div><div class="top-right"><span class="demo-pill">● DEMO ENVIRONMENT</span><div class="user-chip"><div class="user-avatar">AD</div><span>Administrator Demo</span></div></div></div>
+<main class="main"><div class="topbar"><div class="crumb">IPMS / <b id="page-title">Ringkasan</b></div><div class="top-right"><span class="site-pill">⌖ PANGKALAN UDARA SUBANG</span><span class="demo-pill">● DEMO ENVIRONMENT</span><div class="user-chip"><div class="user-avatar">AD</div><span>Administrator Demo</span></div></div></div>
 <div class="content"><div class="page-head"><div><div class="eyebrow">TENTERA UDARA DIRAJA MALAYSIA</div><h1>Pengurusan Identiti &amp; Profil</h1><p>Direktori pentadbiran bersepadu • IPMS TUDM Edition</p></div></div><div id="view"></div>
-<div class="footer">IPMS TUDM • Prototaip UI sahaja • Semua rekod dan avatar profil adalah rekaan. Penggunaan lencana dalam produk rasmi tertakluk kepada kebenaran agensi. Data disimpan setempat pada browser ini dan tidak disegerakkan. Sistem ini tidak mengawal akses fizikal atau menggantikan proses rasmi TUDM.</div></div></main></div>
+<div class="footer">IPMS TUDM • Pangkalan Udara Subang • Prototaip UI sahaja • Semua rekod dan avatar profil adalah rekaan. Penggunaan lencana dalam produk rasmi tertakluk kepada kebenaran agensi. Data disimpan setempat pada browser ini dan tidak disegerakkan. Sistem ini tidak mengawal akses fizikal atau menggantikan proses rasmi TUDM.</div></div></main></div>
 <div class="modal-backdrop" id="modal"><div class="modal"><div class="modal-head"><h3 id="modal-title">Butiran</h3><button class="close" data-close aria-label="Tutup">×</button></div><div class="modal-body" id="modal-body"></div></div></div><div class="toast" id="toast"></div>
 <script src="app.js" defer></script></body></html>
