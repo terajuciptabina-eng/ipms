@@ -40,7 +40,9 @@ try{
   db=seed();
 }
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){return false}};
-// Keep existing browser records and deterministically top up the synthetic directory to 100 profiles.
+// Grow the local synthetic directory to 1,234 records while retaining existing browser records.
+const ACCESS_SITE="Pangkalan Udara Subang";
+const PROFILE_TARGETS={personnel:864,visitor:185,contractor:185};
 function ensureDemoProfiles(data){
   const given=[
     ["Afiq","m"],["Amirul","m"],["Aqil","m"],["Danish","m"],["Farhan","m"],
@@ -49,41 +51,54 @@ function ensureDemoProfiles(data){
     ["Irfan","m"],["Khairul","m"],["Mikail","m"],["Rayyan","m"],["Zikri","m"],
     ["Aina","f"],["Alya","f"],["Amirah","f"]
   ];
-  const family=["Abdullah","Ismail","Rahman","Hamdan"];
-  const additions=[];
-  for(let i=0;i<given.length*family.length;i++){
-    const [first,gender]=given[i%given.length];
-    const surname=family[Math.floor(i/given.length)];
-    const category=i<66?"personnel":i<79?"visitor":"contractor";
-    const categoryIndex=category==="personnel"?i+5:category==="visitor"?i-66+3:i-79+3;
-    const number=String(categoryIndex).padStart(4,"0");
-    const serial=data.profiles.length+additions.length+1;
-    const companyIndex=(i%13)+1;
-    const role=category==="personnel"?"Pegawai / Anggota Demo "+String((i%6)+1):category==="visitor"?"Urusan Lawatan Demo":"Wakil Syarikat Demo";
-    const unit=category==="personnel"?"Unit Pentadbiran Demo "+String((i%8)+1):category==="visitor"?"Unit Pengiring Demo":"Syarikat Contoh "+String(companyIndex).padStart(2,"0")+" Sdn. Bhd.";
-    const state=["active","active","active","pending","inactive"][i%5];
-    additions.push({
-      id:"p"+serial,
-      ref:"DEMO-"+(category==="personnel"?"P":category==="visitor"?"V":"C")+"-"+number,
-      category,
-      name:first+" "+(gender==="f"?"binti":"bin")+" "+surname,
-      role,unit,status:state,
-      email:"profile."+String(serial).padStart(3,"0")+"@example.test",
-      avatar:"assets/profiles/avatar-"+String((serial-1)%8+1).padStart(2,"0")+".svg",
-      phone:"Nombor tidak digunakan — data demo",
-      notes:"PROFIL SINTETIK • Rekod rekaan untuk demonstrasi sahaja"
-    });
+  const family=[
+    "Abdullah","Ismail","Rahman","Hamdan","Yusof","Azman","Salleh","Omar","Hassan","Ibrahim",
+    "Khalid","Mahmud","Osman","Yaakob","Zainal","Latif","Razak","Sulaiman","Jamil","Kamaruddin",
+    "Bakar","Karim","Nordin","Anuar","Baharom","Basri","Fauzi","Ghani","Halim","Jalil",
+    "Kassim","Majid","Nasir","Rashid","Samad","Talib","Wahid","Yahya","Zakaria","Adnan",
+    "Ariffin","Bakri","Daud","Elias","Fadzil","Ghazali","Iskandar","Johan","Kadir","Lokman",
+    "Mustafa","Noor","Puteh","Rauf"
+  ];
+  const existingRefs=new Set(data.profiles.map(p=>p.ref));
+  let nextId=data.profiles.reduce((m,p)=>Math.max(m,Number(String(p.id||"").replace(/^p/, ""))||0),0)+1;
+  let nameIndex=0;
+  for(const category of ["personnel","visitor","contractor"]){
+    let count=data.profiles.filter(p=>p.category===category).length;
+    while(count<PROFILE_TARGETS[category]&&data.profiles.length<1234){
+      const [first,gender]=given[nameIndex%given.length];
+      const surname=family[Math.floor(nameIndex/given.length)%family.length];
+      nameIndex++;
+      const number=String(count+1).padStart(4,"0");
+      const prefix=category==="personnel"?"P":category==="visitor"?"V":"C";
+      const ref="DEMO-"+prefix+"-"+number;
+      if(existingRefs.has(ref)){count++;continue}
+      const serial=nextId++;
+      const companyIndex=((count-1)%48)+1;
+      const state=["active","active","active","pending","inactive"][count%5];
+      const role=category==="personnel"
+        ?"Pegawai / Anggota Demo "+String(((count-1)%12)+1)
+        :category==="visitor"?"Urusan Lawatan Demo":"Wakil Syarikat Demo";
+      const unit=category==="personnel"
+        ?"Unit Pentadbiran Demo "+String(((count-1)%24)+1).padStart(2,"0")
+        :category==="visitor"?"Unit Pengiring Demo "+String(((count-1)%8)+1).padStart(2,"0")
+        :"Syarikat Contoh "+String(companyIndex).padStart(2,"0")+" Sdn. Bhd.";
+      data.profiles.push({
+        id:"p"+serial,ref,category,
+        name:first+" "+(gender==="f"?"binti":"bin")+" "+surname,
+        role,unit,status:state,
+        email:"profile."+String(serial).padStart(4,"0")+"@example.test",
+        avatar:"assets/profiles/avatar-"+String((serial-1)%8+1).padStart(2,"0")+".svg",
+        phone:"Nombor tidak digunakan — data demo",
+        notes:"PROFIL SINTETIK • "+ACCESS_SITE+" • Rekod rekaan untuk demonstrasi sahaja"
+      });
+      existingRefs.add(ref);count++;
+    }
   }
-  const existing=new Set(data.profiles.map(p=>p.ref));
-  for(const profile of additions){
-    if(data.profiles.length>=100)break;
-    if(!existing.has(profile.ref)){data.profiles.push(profile);existing.add(profile.ref)}
-  }
+  data.org=ACCESS_SITE;
   return data;
 }
 db=ensureDemoProfiles(db);
 // Synthetic access-history examples, explicitly scoped to Pangkalan Udara Subang.
-const ACCESS_SITE="Pangkalan Udara Subang";
 if(!Array.isArray(db.accessLogs)||db.accessLogs.length===0){
   const samples=[
     ["p1","2026-11-24T07:42:00+08:00","Masuk","Dibenarkan","Tugas pentadbiran"],
@@ -111,14 +126,20 @@ if(!Array.isArray(db.accessLogs)||db.accessLogs.length===0){
 save();
 const log=(action,subject)=>{db.audit.unshift({date:new Date().toISOString(),action,subject});db.audit=db.audit.slice(0,300);save()};
 const pill=s=>'<span class="pill '+esc(s)+'">'+esc(states[s]||s)+'</span>';
-let page="dashboard",term="",cat="",status="";
+let page="dashboard",term="",cat="",status="",profilePageIndex=1;\nconst PROFILE_PAGE_SIZE=50;
 function toast(s){const t=$("#toast");t.textContent=s;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2300)}
 function nav(){return}
 function go(p){page=p;term="";cat="";status="";$$("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("#page-title").textContent=({dashboard:"Ringkasan",profiles:"Direktori Profil",visitors:"Pengurusan Pelawat",contractors:"Pengurusan Kontraktor",requests:"Rekod Pentadbiran",cards:"Kad Demo",access:"Rekod Kemasukan",users:"Pengguna & Peranan",reports:"Laporan",audit:"Log Aktiviti",settings:"Konfigurasi"})[p];render()}
 function stats(){return '<div class="stats">'+[['Jumlah profil',db.profiles.length,'♙'],['Personel',db.profiles.filter(x=>x.category==="personnel").length,'✦'],['Pelawat',db.profiles.filter(x=>x.category==="visitor").length,'◎'],['Kontraktor',db.profiles.filter(x=>x.category==="contractor").length,'▤']].map(x=>'<div class="stat"><span>'+x[2]+'</span><div><small>'+x[0]+'</small><strong>'+x[1]+'</strong></div></div>').join("")+'</div>'}
 function dash(){return '<section class="hero"><div><h2>Selamat datang ke IPMS TUDM</h2><p>Platform demonstrasi untuk pengurusan profil personel, pelawat, kontraktor dan rekod pentadbiran.</p></div><b>SENTIASA DI ANGKASA RAYA</b></section>'+stats()+'<div class="dash-grid"><section class="panel"><header><div><h3>Permohonan terkini</h3><small>Rekod pentadbiran demo</small></div><button class="btn secondary" data-go="requests">Lihat semua</button></header>'+requestTable(db.requests.slice(0,4))+'</section><section class="panel"><header><div><h3>Aktiviti terkini</h3><small>Log dalam browser ini</small></div><button class="btn secondary" data-go="audit">Lihat log</button></header>'+db.audit.slice(0,5).map(a=>'<div class="activity"><b>'+esc(a.action)+'</b><small>'+esc(a.subject)+' · '+new Date(a.date).toLocaleString("ms-MY")+'</small></div>').join("")+'</section></div><section class="panel mt"><header><div><h3>Akses pantas</h3><small>Modul pentadbiran</small></div></header><div class="quick-grid">'+[['profiles','＋','Tambah profil'],['visitors','◎','Pelawat'],['requests','▣','Permohonan'],['cards','▤','Kad demo']].map(x=>'<button class="quick" data-go="'+x[0]+'"><strong>'+x[1]+' '+x[2]+'</strong></button>').join("")+'</div></section>'}
 function toolbar(){return '<div class="toolbar"><input id="search" type="search" placeholder="Cari nama, rujukan, e-mel atau organisasi…" value="'+esc(term)+'"><select id="cat"><option value="">Semua kategori</option>'+Object.keys(cats).map(k=>'<option value="'+k+'" '+(cat===k?'selected':'')+'>'+cats[k]+'</option>').join("")+'</select><select id="status"><option value="">Semua status</option>'+['active','pending','inactive','suspended','archived'].map(k=>'<option value="'+k+'" '+(status===k?'selected':'')+'>'+states[k]+'</option>').join("")+'</select></div>'}
-function profileCards(mode){let list=db.profiles.filter(p=>(!mode||p.category===mode)&&(!term||JSON.stringify(p).toLowerCase().includes(term.toLowerCase()))&&(!cat||p.category===cat)&&(!status||p.status===status));return '<div class="section-head"><div><h2>'+(mode?cats[mode]:"Direktori Profil")+'</h2><p>Semua data ialah rekod sintetik demonstrasi</p></div><button class="btn primary" data-action="new-profile">＋ Tambah profil</button></div><section class="panel">'+toolbar()+'<div class="results">Memaparkan '+list.length+' daripada '+db.profiles.length+' profil</div><div class="grid">'+list.map(p=>'<article class="profile-card"><button class="card-open" data-profile="'+p.id+'"><div class="person"><img class="avatar" src="'+esc(p.avatar)+'" alt="Avatar demo"><div><b>'+esc(p.name)+'</b><small>'+esc(p.ref)+'</small></div></div><div class="meta"><div><span>Kategori</span><b>'+cats[p.category]+'</b></div><div><span>Jawatan / Organisasi</span><b>'+esc(p.role)+'</b></div><div><span>Unit / Skop</span><b>'+esc(p.unit)+'</b></div><div><span>Status</span>'+pill(p.status)+'</div></div><small class="open-hint">Lihat butiran profil →</small></button></article>').join("")+'</div></section>'}
+function profileCards(mode){
+  const list=db.profiles.filter(p=>(!mode||p.category===mode)&&(!term||JSON.stringify(p).toLowerCase().includes(term.toLowerCase()))&&(!cat||p.category===cat)&&(!status||p.status===status));
+  const pages=Math.max(1,Math.ceil(list.length/PROFILE_PAGE_SIZE));
+  profilePageIndex=Math.min(profilePageIndex,pages);
+  const visible=list.slice((profilePageIndex-1)*PROFILE_PAGE_SIZE,profilePageIndex*PROFILE_PAGE_SIZE);
+  return '<div class="section-head"><div><h2>'+(mode?cats[mode]:"Direktori Profil")+'</h2><p>'+esc(ACCESS_SITE)+' • Data sintetik demonstrasi</p></div><button class="btn primary" data-action="new-profile">＋ Tambah profil</button></div><section class="panel">'+toolbar()+'<div class="results">Memaparkan '+visible.length+' daripada '+list.length+' profil yang sepadan • Jumlah direktori: '+db.profiles.length.toLocaleString("ms-MY")+'</div><div class="grid">'+visible.map(p=>'<article class="profile-card"><button class="card-open" data-profile="'+p.id+'"><div class="person"><img class="avatar" src="'+esc(p.avatar)+'" alt="Avatar demo"><div><b>'+esc(p.name)+'</b><small>'+esc(p.ref)+'</small></div></div><div class="meta"><div><span>Kategori</span><b>'+cats[p.category]+'</b></div><div><span>Jawatan / Organisasi</span><b>'+esc(p.role)+'</b></div><div><span>Unit / Skop</span><b>'+esc(p.unit)+'</b></div><div><span>Status</span>'+pill(p.status)+'</div></div><small class="open-hint">Lihat butiran profil →</small></button></article>').join("")+'</div><div class="pagination"><button class="btn secondary" data-profile-page="'+(profilePageIndex-1)+'" '+(profilePageIndex===1?'disabled':'')+'>Sebelumnya</button><span>Halaman '+profilePageIndex+' / '+pages+'</span><button class="btn secondary" data-profile-page="'+(profilePageIndex+1)+'" '+(profilePageIndex===pages?'disabled':'')+'>Seterusnya</button></div></section>';
+}
 function requestTable(rows){return '<div class="table-wrap"><table><thead><tr><th>Rujukan</th><th>Jenis</th><th>Subjek</th><th>Tarikh</th><th>Status</th><th></th></tr></thead><tbody>'+rows.map(r=>'<tr><td><b>'+esc(r.ref)+'</b></td><td>'+esc(r.type)+'</td><td>'+esc(r.subject)+'</td><td>'+esc(r.date)+'</td><td>'+pill(r.status)+'</td><td><button class="text-btn" data-request="'+r.id+'">Butiran</button></td></tr>').join("")+'</tbody></table></div>'}
 function requests(){let rows=db.requests.filter(r=>!term||JSON.stringify(r).toLowerCase().includes(term.toLowerCase()));return '<div class="section-head"><div><h2>Rekod Pentadbiran</h2><p>Permohonan dan semakan pentadbiran demonstrasi</p></div><button class="btn primary" data-action="new-request">＋ Permohonan baharu</button></div><section class="panel"><div class="toolbar"><input id="search" value="'+esc(term)+'" placeholder="Cari rujukan atau subjek…"></div>'+requestTable(rows)+'</section>'}
 function cardsPage(){return '<div class="section-head"><div><h2>Metadata Kad Demo</h2><p>Kad ujian rekaan sahaja — tiada pembacaan kad sebenar</p></div><button class="btn primary" data-action="new-card">＋ Daftar kad demo</button></div><section class="panel"><div class="table-wrap"><table><thead><tr><th>Rujukan</th><th>Profil</th><th>Status</th><th>Sah sehingga</th><th></th></tr></thead><tbody>'+db.cards.map(c=>'<tr><td>'+esc(c.ref)+'</td><td>'+esc((db.profiles.find(p=>p.id===c.profile)||{}).name||"—")+'</td><td>'+pill(c.status)+'</td><td>'+esc(c.valid)+'</td><td><button class="text-btn" data-card="'+c.id+'">Urus</button></td></tr>').join("")+'</tbody></table></div></section><div class="notice">Tiada UID, protokol reader, operasi pintu/penghadang atau keputusan akses fizikal dilaksanakan.</div>'}
@@ -136,17 +157,17 @@ function usersPage(){return '<div class="section-head"><div><h2>Pengguna & Peran
 function reports(){return '<div class="section-head"><div><h2>Laporan & Eksport</h2><p>Eksport CSV rekod demo yang disimpan pada browser ini</p></div></div><div class="report-grid">'+[['profiles','Direktori profil'],['requests','Permohonan'],['cards','Kad demo'],['accessLogs','Rekod kemasukan'],['audit','Log audit']].map(x=>'<section class="panel report-card"><h3>'+x[1]+'</h3><p>Eksport rekod sintetik dalam format CSV.</p><button class="btn primary" data-export="'+x[0]+'">Eksport CSV</button></section>').join("")+'</div>'}
 function auditPage(){return '<div class="section-head"><div><h2>Log Aktiviti</h2><p>Sejarah tindakan prototaip browser ini</p></div><button class="btn secondary" data-export="audit">Eksport CSV</button></div><section class="panel"><div class="table-wrap"><table><thead><tr><th>Masa</th><th>Tindakan</th><th>Subjek</th></tr></thead><tbody>'+db.audit.map(a=>'<tr><td>'+new Date(a.date).toLocaleString("ms-MY")+'</td><td>'+esc(a.action)+'</td><td>'+esc(a.subject)+'</td></tr>').join("")+'</tbody></table></div></section>'}
 function settings(){return '<div class="section-head"><div><h2>Konfigurasi Demo</h2><p>Tetapan tempatan untuk prototaip ini</p></div></div><section class="panel settings"><label>Nama organisasi demo<input id="org" value="'+esc(db.org)+'"></label><button class="btn primary" data-action="save-settings">Simpan</button><button class="btn danger" data-action="reset">Reset semua data demo</button></section><div class="notice">Data disimpan dalam localStorage browser ini sahaja. Tidak disegerakkan antara peranti atau pengguna.</div>'}
-function render(){let fn={dashboard:dash,profiles:()=>profileCards(),visitors:()=>profileCards("visitor"),contractors:()=>profileCards("contractor"),requests,cards:cardsPage,access:accessPage,users:usersPage,reports,audit:auditPage,settings};$("#view").innerHTML=(fn[page]||dash)();let s=$("#search");if(s)s.oninput=e=>{term=e.target.value;const pos=s.selectionStart;render();$("#search").focus();$("#search").setSelectionRange(pos,pos)};if($("#cat"))$("#cat").onchange=e=>{cat=e.target.value;render()};if($("#status"))$("#status").onchange=e=>{status=e.target.value;render()}}
+function render(){let fn={dashboard:dash,profiles:()=>profileCards(),visitors:()=>profileCards("visitor"),contractors:()=>profileCards("contractor"),requests,cards:cardsPage,access:accessPage,users:usersPage,reports,audit:auditPage,settings};$("#view").innerHTML=(fn[page]||dash)();let s=$("#search");if(s)s.oninput=e=>{term=e.target.value;profilePageIndex=1;const pos=s.selectionStart;render();$("#search").focus();$("#search").setSelectionRange(pos,pos)};if($("#cat"))$("#cat").onchange=e=>{cat=e.target.value;profilePageIndex=1;render()};if($("#status"))$("#status").onchange=e=>{status=e.target.value;profilePageIndex=1;render()}}
 function modal(title,html){$("#modal-title").textContent=title;$("#modal-body").innerHTML=html;$("#modal").classList.add("show")}
 function close(){ $("#modal").classList.remove("show") }
-function profileForm(p){p=p||{};let edit=!!p.id;modal(edit?"Kemaskini profil":"Tambah profil",'<form id="profile-form" class="form-grid"><label>Nama penuh<input name="name" required value="'+esc(p.name||"")+'"></label><label>Kategori<select name="category">'+Object.keys(cats).map(k=>'<option value="'+k+'" '+(p.category===k?'selected':'')+'>'+cats[k]+'</option>').join("")+'</select></label><label>Jawatan / Syarikat / Tujuan<input name="role" required value="'+esc(p.role||"")+'"></label><label>Unit / Skop / Pengiring<input name="unit" value="'+esc(p.unit||"")+'"></label><label>Status<select name="status">'+['pending','active','inactive','suspended','archived'].map(k=>'<option value="'+k+'" '+(p.status===k?'selected':'')+'>'+states[k]+'</option>').join("")+'</select></label><label>E-mel contoh<input name="email" type="email" value="'+esc(p.email||"")+'"></label><label>Telefon contoh<input name="phone" value="'+esc(p.phone||"")+'"></label><label class="span-2">Catatan<textarea name="notes">'+esc(p.notes||"")+'</textarea></label><div class="form-actions span-2"><button type="button" class="btn secondary" data-close>Tutup</button><button class="btn primary">Simpan rekod demo</button></div></form>');$("#profile-form").onsubmit=e=>{e.preventDefault();let d=Object.fromEntries(new FormData(e.target));if(edit){Object.assign(p,d);log("Profil dikemaskini",p.ref)}else{let prefix={personnel:"P",visitor:"V",contractor:"C"}[d.category];let n=db.profiles.filter(x=>x.category===d.category).length+1;db.profiles.unshift({id:id("P"),ref:"DEMO-"+prefix+"-"+String(n).padStart(4,"0"),avatar:"assets/profiles/avatar-01.svg",...d});log("Profil baharu ditambah",d.name)}save();close();render();toast("Rekod demo disimpan.")}}
+function profileForm(p){p=p||{};let edit=!!p.id;modal(edit?"Kemaskini profil":"Tambah profil",'<form id="profile-form" class="form-grid"><label>Nama penuh<input name="name" required value="'+esc(p.name||"")+'"></label><label>Kategori<select name="category">'+Object.keys(cats).map(k=>'<option value="'+k+'" '+(p.category===k?'selected':'')+'>'+cats[k]+'</option>').join("")+'</select></label><label>Jawatan / Syarikat / Tujuan<input name="role" required value="'+esc(p.role||"")+'"></label><label>Unit / Skop / Pengiring<input name="unit" value="'+esc(p.unit||"")+'"></label><label>Status<select name="status">'+['pending','active','inactive','suspended','archived'].map(k=>'<option value="'+k+'" '+(p.status===k?'selected':'')+'>'+states[k]+'</option>').join("")+'</select></label><label>E-mel contoh<input name="email" type="email" value="'+esc(p.email||"")+'"></label><label>Telefon contoh<input name="phone" value="'+esc(p.phone||"")+'"></label><label class="span-2">Catatan<textarea name="notes">'+esc(p.notes||"")+'</textarea></label><div class="form-actions span-2"><button type="button" class="btn secondary" data-close>Tutup</button><button class="btn primary">Simpan rekod demo</button></div></form>');$("#profile-form").onsubmit=e=>{e.preventDefault();let d=Object.fromEntries(new FormData(e.target));if(edit){Object.assign(p,d);log("Profil dikemaskini",p.ref)}else{let prefix={personnel:"P",visitor:"V",contractor:"C"}[d.category];let n=db.profiles.filter(x=>x.category===d.category).length+1;profilePageIndex=1;db.profiles.unshift({id:id("P"),ref:"DEMO-"+prefix+"-"+String(n).padStart(4,"0"),avatar:"assets/profiles/avatar-01.svg",...d});log("Profil baharu ditambah",d.name)}save();close();render();toast("Rekod demo disimpan.")}}
 function detail(p){modal("Butiran profil",'<div class="detail-top"><img class="detail-avatar" src="'+esc(p.avatar)+'"><div><h2>'+esc(p.name)+'</h2><small>'+esc(p.ref)+' · '+pill(p.status)+'</small></div></div><div class="detail-grid">'+[['Kategori',cats[p.category]],['Jawatan / Syarikat / Tujuan',p.role],['Unit / Skop',p.unit],['E-mel demo',p.email],['Telefon demo',p.phone],['Catatan',p.notes]].map(x=>'<div class="detail-field"><small>'+x[0]+'</small><b>'+esc(x[1]||"—")+'</b></div>').join("")+'</div><div class="form-actions mt"><button class="btn secondary" data-close>Tutup</button><button class="btn primary" data-edit="'+p.id+'">Kemaskini</button></div><div class="notice">Data sintetik sahaja. Bukan pengesahan identiti atau kebenaran akses.</div>')}
 function newRequest(){modal("Permohonan baharu",'<form id="request-form" class="form-grid"><label>Jenis permohonan<input name="type" required value="Pendaftaran profil"></label><label>Subjek<input name="subject" required></label><label>Status<select name="status"><option value="submitted">Dihantar</option><option value="under_review">Dalam semakan</option></select></label><label>Tarikh<input name="date" type="date" value="'+new Date().toISOString().slice(0,10)+'"></label><div class="form-actions span-2"><button type="button" class="btn secondary" data-close>Tutup</button><button class="btn primary">Simpan permohonan</button></div></form>');$("#request-form").onsubmit=e=>{e.preventDefault();let d=Object.fromEntries(new FormData(e.target));db.requests.unshift({id:id("R"),ref:id("REQ-DEMO"),...d});log("Permohonan baharu direkodkan",d.subject);save();close();render();toast("Permohonan demo direkodkan.")}}
 function exportData(type){let rows=db[type]||[];if(!rows.length){toast("Tiada data.");return}let keys=[...new Set(rows.flatMap(x=>Object.keys(x)))];let csv=[keys.join(","),...rows.map(r=>keys.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(","))].join("\r\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="ipms-demo-"+type+".csv";a.click();URL.revokeObjectURL(a.href);log("CSV dieksport",type)}
 document.addEventListener("click",e=>{
-let n=e.target.closest("[data-page]");if(n){e.preventDefault();go(n.dataset.page);return}
-let g=e.target.closest("[data-go]");if(g){go(g.dataset.go);return}
-let a=e.target.closest("[data-action]");if(a){let v=a.dataset.action;if(v==="new-profile")profileForm();if(v==="new-request")newRequest();if(v==="new-card")newCard();if(v==="save-settings"){db.org=$("#org").value;save();log("Konfigurasi disimpan",db.org);toast("Disimpan.")}if(v==="reset"&&confirm("Reset semua data demo browser ini?")){db=seed();save();go("dashboard");toast("Data demo dipulihkan.")}}
+let n=e.target.closest("[data-page]");if(n){e.preventDefault();profilePageIndex=1;go(n.dataset.page);return}
+let g=e.target.closest("[data-go]");if(g){profilePageIndex=1;go(g.dataset.go);return}\nlet pp=e.target.closest("[data-profile-page]");if(pp){profilePageIndex=Math.max(1,Number(pp.dataset.profilePage)||1);render();return}
+let a=e.target.closest("[data-action]");if(a){let v=a.dataset.action;if(v==="new-profile")profileForm();if(v==="new-request")newRequest();if(v==="new-card")newCard();if(v==="save-settings"){db.org=ACCESS_SITE;save();log("Konfigurasi disimpan",ACCESS_SITE);toast("Disimpan.")}if(v==="reset"&&confirm("Reset semua data demo browser ini?")){db=seed();save();db=ensureDemoProfiles(db);save();go("dashboard");toast("Data demo dipulihkan.")}}
 let p=e.target.closest("[data-profile]");if(p){let x=db.profiles.find(q=>q.id===p.dataset.profile);if(x)detail(x)}
 let ed=e.target.closest("[data-edit]");if(ed){let x=db.profiles.find(q=>q.id===ed.dataset.edit);if(x)profileForm(x)}
 let r=e.target.closest("[data-request]");if(r)requestDetail(r.dataset.request);
