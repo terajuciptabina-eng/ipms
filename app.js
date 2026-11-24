@@ -43,6 +43,11 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db));return true}cat
 // Grow the local synthetic directory to 1,234 records while retaining existing browser records.
 const ACCESS_SITE="Pangkalan Udara Subang";
 const PROFILE_TARGETS={personnel:864,visitor:185,contractor:185};
+const DEMO_RANKS=[["Jeneral",1],["Leftenan Jeneral",2],["Mejar Jeneral",5],["Brigedier Jeneral",10],["Kolonel",24],["Leftenan Kolonel",48],["Mejar",82],["Kapten",115],["Leftenan",145],["Leftenan Muda",170],["Pegawai Waran I",220],["Pegawai Waran II",260],["Flait Sarjan",330],["Sarjan Udara",410],["Koperal Udara",500],["Laskar Udara Kanan",650],["Laskar Udara",864]];
+const DEMO_TRADES=["Operasi Udara","Kejuruteraan Pesawat","Kejuruteraan Elektrik dan Avionik","Logistik","Pentadbiran","Komunikasi","Keselamatan Pangkalan","Latihan","Sokongan Teknikal"];
+const DEMO_UNITS=["Cawangan Operasi","Cawangan Kejuruteraan","Cawangan Logistik","Cawangan Pentadbiran","Cawangan Komunikasi","Cawangan Keselamatan","Cawangan Latihan","Cawangan Sokongan Teknikal"];
+function syntheticRank(index){for(const [rank,limit] of DEMO_RANKS)if(index<=limit)return rank;return "Laskar Udara";}
+function enrichPersonnelProfile(p,index){const n=Math.max(1,index);p.rank=syntheticRank(n);p.serviceNo="DEMO-TUDM-"+String(n).padStart(5,"0");p.trade=DEMO_TRADES[(n*7)%DEMO_TRADES.length];p.unit=DEMO_UNITS[(n*5)%DEMO_UNITS.length];p.role=p.rank+" • "+p.trade;p.notes="PROFIL SINTETIK • Pangkalan Udara Subang • Data rekaan untuk demonstrasi sahaja";return p;}
 function demoPhotoUrl(profile){
   const raw=String(profile.id||profile.ref||"1");
   const match=raw.match(/[0-9]+/);
@@ -84,11 +89,12 @@ function ensureDemoProfiles(data){
       const serial=nextId++;
       const companyIndex=((count-1)%48)+1;
       const state=["active","active","active","pending","inactive"][count%5];
+      const personnelIndex=count;
       const role=category==="personnel"
-        ?"Pegawai / Anggota Demo "+String(((count-1)%12)+1)
+        ?syntheticRank(personnelIndex)+" • "+DEMO_TRADES[(personnelIndex*7)%DEMO_TRADES.length]
         :category==="visitor"?"Urusan Lawatan Demo":"Wakil Syarikat Demo";
       const unit=category==="personnel"
-        ?"Unit Pentadbiran Demo "+String(((count-1)%24)+1).padStart(2,"0")
+        ?DEMO_UNITS[(personnelIndex*5)%DEMO_UNITS.length]
         :category==="visitor"?"Unit Pengiring Demo "+String(((count-1)%8)+1).padStart(2,"0")
         :"Syarikat Contoh "+String(companyIndex).padStart(2,"0")+" Sdn. Bhd.";
       data.profiles.push({
@@ -103,7 +109,9 @@ function ensureDemoProfiles(data){
       existingRefs.add(ref);count++;
     }
   }
+  let personnelCounter=0;
   data.profiles.forEach(p=>{
+    if(p.category==="personnel")enrichPersonnelProfile(p,++personnelCounter);
     if(!p.gender){
       const n=String(p.name||"").toLowerCase();
       p.gender=(n.includes("binti")||n.startsWith("aisyah")||n.startsWith("balqis")||n.startsWith("nadia"))?"f":"m";
@@ -184,7 +192,7 @@ function render(){let fn={dashboard:dash,profiles:()=>profileCards(),visitors:()
 function modal(title,html){$("#modal-title").textContent=title;$("#modal-body").innerHTML=html;$("#modal").classList.add("show")}
 function close(){ $("#modal").classList.remove("show") }
 function profileForm(p){p=p||{};let edit=!!p.id;modal(edit?"Kemaskini profil":"Tambah profil",'<form id="profile-form" class="form-grid"><label>Nama penuh<input name="name" required value="'+esc(p.name||"")+'"></label><label>Kategori<select name="category">'+Object.keys(cats).map(k=>'<option value="'+k+'" '+(p.category===k?'selected':'')+'>'+cats[k]+'</option>').join("")+'</select></label><label>Jawatan / Syarikat / Tujuan<input name="role" required value="'+esc(p.role||"")+'"></label><label>Unit / Skop / Pengiring<input name="unit" value="'+esc(p.unit||"")+'"></label><label>Status<select name="status">'+['pending','active','inactive','suspended','archived'].map(k=>'<option value="'+k+'" '+(p.status===k?'selected':'')+'>'+states[k]+'</option>').join("")+'</select></label><label>E-mel contoh<input name="email" type="email" value="'+esc(p.email||"")+'"></label><label>Telefon contoh<input name="phone" value="'+esc(p.phone||"")+'"></label><label class="span-2">Catatan<textarea name="notes">'+esc(p.notes||"")+'</textarea></label><div class="form-actions span-2"><button type="button" class="btn secondary" data-close>Tutup</button><button class="btn primary">Simpan rekod demo</button></div></form>');$("#profile-form").onsubmit=e=>{e.preventDefault();let d=Object.fromEntries(new FormData(e.target));if(edit){Object.assign(p,d);log("Profil dikemaskini",p.ref)}else{let prefix={personnel:"P",visitor:"V",contractor:"C"}[d.category];let n=db.profiles.filter(x=>x.category===d.category).length+1;profilePageIndex=1;let np={id:id("P"),ref:"DEMO-"+prefix+"-"+String(n).padStart(4,"0"),avatar:"",...d};np.avatar=demoPhotoUrl(np);db.profiles.unshift(np);log("Profil baharu ditambah",d.name)}save();close();render();toast("Rekod demo disimpan.")}}
-function detail(p){modal("Butiran profil",'<div class="detail-top"><img class="detail-avatar" src="'+esc(p.avatar)+'" alt="Foto profil sintetik — bukan anggota sebenar" onerror="this.onerror=null;this.src=\'assets/profiles/avatar-01.svg\'"><div><h2>'+esc(p.name)+'</h2><small>'+esc(p.ref)+' · '+pill(p.status)+'</small></div></div><div class="photo-disclaimer">Foto demo daripada Random User Generator — bukan gambar anggota TUDM sebenar.</div><div class="detail-grid">'+[['Kategori',cats[p.category]],['Jawatan / Syarikat / Tujuan',p.role],['Unit / Skop',p.unit],['E-mel demo',p.email],['Telefon demo',p.phone],['Catatan',p.notes]].map(x=>'<div class="detail-field"><small>'+x[0]+'</small><b>'+esc(x[1]||"—")+'</b></div>').join("")+'</div><div class="form-actions mt"><button class="btn secondary" data-close>Tutup</button><button class="btn primary" data-edit="'+p.id+'">Kemaskini</button></div><div class="notice">Data sintetik sahaja. Bukan pengesahan identiti atau kebenaran akses.</div>')}
+function detail(p){modal("Butiran profil",'<div class="detail-top"><img class="detail-avatar" src="'+esc(p.avatar)+'" alt="Foto profil sintetik — bukan anggota sebenar" onerror="this.onerror=null;this.src=\'assets/profiles/avatar-01.svg\'"><div><h2>'+esc(p.name)+'</h2><small>'+esc(p.ref)+' · '+pill(p.status)+'</small></div></div><div class="photo-disclaimer">Foto demo daripada Random User Generator — bukan gambar anggota TUDM sebenar.</div><div class="detail-grid">'+[['Kategori',cats[p.category]],...(p.category==="personnel"?[['Pangkat',p.rank],['No. Perkhidmatan Demo',p.serviceNo],['Kepakaran',p.trade]]:[]),['Jawatan / Syarikat / Tujuan',p.role],['Unit / Skop',p.unit],['E-mel demo',p.email],['Telefon demo',p.phone],['Catatan',p.notes]].map(x=>'<div class="detail-field"><small>'+x[0]+'</small><b>'+esc(x[1]||"—")+'</b></div>').join("")+'</div><div class="form-actions mt"><button class="btn secondary" data-close>Tutup</button><button class="btn primary" data-edit="'+p.id+'">Kemaskini</button></div><div class="notice">Data sintetik sahaja. Bukan pengesahan identiti atau kebenaran akses.</div>')}
 function newRequest(){modal("Permohonan baharu",'<form id="request-form" class="form-grid"><label>Jenis permohonan<input name="type" required value="Pendaftaran profil"></label><label>Subjek<input name="subject" required></label><label>Status<select name="status"><option value="submitted">Dihantar</option><option value="under_review">Dalam semakan</option></select></label><label>Tarikh<input name="date" type="date" value="'+new Date().toISOString().slice(0,10)+'"></label><div class="form-actions span-2"><button type="button" class="btn secondary" data-close>Tutup</button><button class="btn primary">Simpan permohonan</button></div></form>');$("#request-form").onsubmit=e=>{e.preventDefault();let d=Object.fromEntries(new FormData(e.target));db.requests.unshift({id:id("R"),ref:id("REQ-DEMO"),...d});log("Permohonan baharu direkodkan",d.subject);save();close();render();toast("Permohonan demo direkodkan.")}}
 function exportData(type){let rows=db[type]||[];if(!rows.length){toast("Tiada data.");return}let keys=[...new Set(rows.flatMap(x=>Object.keys(x)))];let csv=[keys.join(","),...rows.map(r=>keys.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(","))].join("\r\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="ipms-demo-"+type+".csv";a.click();URL.revokeObjectURL(a.href);log("CSV dieksport",type)}
 document.addEventListener("click",e=>{
