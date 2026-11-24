@@ -39,6 +39,49 @@ try{
 }catch(e){
   db=seed();
 }
+// Keep existing browser records and deterministically top up the synthetic directory to 100 profiles.
+function ensureDemoProfiles(data){
+  const given=[
+    ["Afiq","m"],["Amirul","m"],["Aqil","m"],["Danish","m"],["Farhan","m"],
+    ["Haziq","m"],["Izzat","m"],["Luqman","m"],["Muaz","m"],["Naufal","m"],
+    ["Qayyum","m"],["Syafiq","m"],["Hakim","m"],["Firdaus","m"],["Harith","m"],
+    ["Irfan","m"],["Khairul","m"],["Mikail","m"],["Rayyan","m"],["Zikri","m"],
+    ["Aina","f"],["Alya","f"],["Amirah","f"]
+  ];
+  const family=["Abdullah","Ismail","Rahman","Hamdan"];
+  const additions=[];
+  for(let i=0;i<given.length*family.length;i++){
+    const [first,gender]=given[i%given.length];
+    const surname=family[Math.floor(i/given.length)];
+    const category=i<66?"personnel":i<79?"visitor":"contractor";
+    const categoryIndex=category==="personnel"?i+5:category==="visitor"?i-66+3:i-79+3;
+    const number=String(categoryIndex).padStart(4,"0");
+    const serial=data.profiles.length+additions.length+1;
+    const companyIndex=(i%13)+1;
+    const role=category==="personnel"?"Pegawai / Anggota Demo "+String((i%6)+1):category==="visitor"?"Urusan Lawatan Demo":"Wakil Syarikat Demo";
+    const unit=category==="personnel"?"Unit Pentadbiran Demo "+String((i%8)+1):category==="visitor"?"Unit Pengiring Demo":"Syarikat Contoh "+String(companyIndex).padStart(2,"0")+" Sdn. Bhd.";
+    const state=["active","active","active","pending","inactive"][i%5];
+    additions.push({
+      id:"p"+serial,
+      ref:"DEMO-"+(category==="personnel"?"P":category==="visitor"?"V":"C")+"-"+number,
+      category,
+      name:first+" "+(gender==="f"?"binti":"bin")+" "+surname,
+      role,unit,status:state,
+      email:"profile."+String(serial).padStart(3,"0")+"@example.test",
+      avatar:"assets/profiles/avatar-"+String((serial-1)%8+1).padStart(2,"0")+".svg",
+      phone:"Nombor tidak digunakan — data demo",
+      notes:"PROFIL SINTETIK • Rekod rekaan untuk demonstrasi sahaja"
+    });
+  }
+  const existing=new Set(data.profiles.map(p=>p.ref));
+  for(const profile of additions){
+    if(data.profiles.length>=100)break;
+    if(!existing.has(profile.ref)){data.profiles.push(profile);existing.add(profile.ref)}
+  }
+  return data;
+}
+db=ensureDemoProfiles(db);
+save();
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){return false}};
 const log=(action,subject)=>{db.audit.unshift({date:new Date().toISOString(),action,subject});db.audit=db.audit.slice(0,300);save()};
 const pill=s=>'<span class="pill '+esc(s)+'">'+esc(states[s]||s)+'</span>';
