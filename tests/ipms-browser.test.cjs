@@ -13,6 +13,10 @@ const assert = require('node:assert/strict');
 
   if (errors.length) throw new Error('Page errors: ' + errors.join(' | '));
   assert.match(await page.title(), /IPMS TUDM/);
+  assert.match(await page.locator('.site-pill').innerText(), /PANGKALAN UDARA SUBANG/);
+  assert.match(await page.locator('.stats').innerText(), /1,234/);
+  assert.match(await page.locator('.stats').innerText(), /864/);
+  assert.match(await page.locator('.stats').innerText(), /185/);
   await page.locator('[data-page="profiles"]').click();
   assert.equal(await page.locator('.profile-card').count(), 50, 'first page of synthetic profile directory');
   assert.match(await page.locator('.results').innerText(), /1,234/, 'directory contains exactly 1,234 profiles');
@@ -21,6 +25,9 @@ const assert = require('node:assert/strict');
   assert.equal(await page.locator('.profile-card').count(), 50, 'profile pagination');
   await page.locator('[data-profile-page="1"]').click();
   assert.equal(await page.locator('.profile-card img').count(), 50, 'visible page profile avatars');
+  await page.locator('[data-profile-page="25"]').click();
+  assert.equal(await page.locator('.profile-card').count(), 34, 'last page contains remaining 34 profiles');
+  await page.locator('[data-profile-page="1"]').click();
 
   await page.locator('[data-page="contractors"]').click();
   assert.equal(await page.locator('.profile-card').count(), 50, 'contractor module first page');
