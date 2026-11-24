@@ -1,106 +1,97 @@
 # IPMS — Identity & Profiling Management System
 
-**Current product focus: IPMS TUDM Edition.** The first implementation is being designed around the administrative identity and profiling needs of Tentera Udara Diraja Malaysia (TUDM). The platform architecture will remain extensible so it can be configured for other agencies in the future, but TDM, TLDM and other agency editions are not current development targets.
+**Current product focus: IPMS TUDM Edition.** The current public prototype is a TUDM-first administrative identity and profiling workspace. The platform architecture is intended to remain configurable for other agencies in the future; TDM, TLDM and other agency editions are not current development targets.
 
-> **Development status:** foundation and mockup work in progress. This repository is currently public and contains software source/documentation only. Use synthetic records. Do not commit real personnel, visitor, credential, facility, operational or classified information. Production use requires written authorisation from the relevant agency, security/privacy review and an approved deployment environment.
+> **Status:** interactive browser prototype / mockup. It is not an operational system, not an official TUDM system, and not approved for real personnel data. Use synthetic records only. Production use requires formal agency authorisation, security and privacy review, approved infrastructure, and a production implementation.
 
-## Current scope — TUDM
+## Open the prototype
 
-- Personnel identity and profile administration
-- Organisation directory and configurable administrative categories
-- Existing-card credential registry, subject to card compatibility assessment
-- RFID reader adapter prototype for authorised test cards only
-- Visitor and appointment administration
-- Contractor and vehicle profiles
-- Administrative request and approval workflows
-- Simulated identity-event history
-- Reporting, user/role administration and audit trail
+GitHub Pages: https://terajuciptabina-eng.github.io/ipms/
 
-Physical access decisions, gate/barrier control and integration with operational security systems are explicitly outside this prototype scope. The system must not be treated as an approved physical access-control system.
+The prototype currently includes:
 
-## Profile gallery mockup
+- Dashboard with synthetic profile counts and recent activity
+- Personnel, visitor and contractor profile directory
+- Profile detail, create and update workflows
+- Visitor and contractor filtered views
+- Administrative request creation and simulated approve/reject decisions
+- Test-only credential metadata registry using fictional references
+- Illustrative users and role display
+- CSV exports for profiles, requests, credential metadata and audit events
+- Browser-local activity log and configurable demo organisation label
+- Responsive layout for desktop, tablet and mobile browsers
 
-A responsive static UI mockup with eight fictional profiles and illustrated avatars is available at:
+## Demo data and storage
 
-- [Open profile gallery source](mockups/profiles/index.html)
-- [View synthetic profile seed](database/seeds/003_tudm_demo_profiles.sql)
-- [View avatar assets](assets/profiles/)
+- Eight fictional profile records and eight original vector avatar illustrations are supplied.
+- Names, reference numbers, emails, phone numbers, organisations and events are synthetic.
+- Changes are stored in the current browser's localStorage. They are not synchronised across users or devices.
+- The reset option restores the original synthetic sample dataset.
+- CSV exports contain only the current browser's demo data.
 
-The profile gallery includes search and filters for category and status. The avatars are original vector illustrations, not photographs of real people. Every name, reference number, email, phone number, organisation label and profile detail is fictional and intended only for UI demonstration.
+## Important limitations
 
-## Database files
+This is a static HTML/CSS/JavaScript prototype. It does **not** currently provide:
+- Backend API or PostgreSQL connection
+- Real authentication, account recovery, session management or server-side role enforcement
+- Multi-user collaboration, central/local synchronisation or server-side audit guarantees
+- Real credential enrolment, RFID reading, UID processing, reader control or physical access decisions
+- Official TUDM approval, integration or production security controls
 
-Apply in this order:
+The card module is metadata-only and uses fictional test references. It must not be connected to gate/barrier controllers or operational security systems.
 
-1. `database/schema/001_initial.sql`
-2. `database/migrations/002_configuration_extensions.sql`
-3. `database/migrations/003_profile_avatar_path.sql`
-4. `database/seeds/001_tudm_demo.sql`
-5. `database/seeds/002_tudm_demo_permissions.sql`
-6. `database/seeds/003_tudm_demo_profiles.sql`
+## Database foundation
 
-The seed files create only a synthetic `tudm-demo` tenant. They do not contain actual TUDM personnel data. The SQL has been committed but has not yet been executed against a PostgreSQL instance.
+PostgreSQL schema and migration drafts are retained under `database/`. They have not been executed against a PostgreSQL instance and are not production-certified. Apply order is documented in the database section below and in the SQL file comments. Tenant isolation policies require a trusted API to authenticate users and set the tenant context transaction-locally; browser code must never set that context.
 
-## Future extensibility
+## Architecture direction
 
-Keep agency-specific terminology, profile fields, module switches, roles and workflow definitions configurable. Do not build TDM/TLDM editions now and do not introduce branch-specific hard-coded assumptions into shared domain logic. Future agency deployments must have separate tenant boundaries and independent approval, data-governance and deployment decisions.
-
-## Architecture principles
-
-1. **TUDM-first delivery:** prioritise TUDM administrative workflows and user experience now.
-2. **Future-ready data model:** tenant ownership and configuration boundaries are designed in from the start, without building other agency editions prematurely.
-3. **Tenant isolation:** every tenant-owned record is scoped server-side. Cross-tenant access must fail closed and be covered by automated tests.
-4. **Configurable policy:** role assignments and approval definitions are configuration, not assumptions embedded in code.
-5. **Credential abstraction:** retain existing cards only when their technology is confirmed compatible. A card UID alone is not proof of identity.
-6. **Safe RFID prototype:** authorised test-card identification and simulated event logging only; no real access decisions.
-7. **Data minimisation:** avoid storing raw card identifiers and unnecessary personal data.
-8. **Approved deployment:** never host real agency data in this public repository, GitHub Pages or unapproved public cloud.
-
-## Suggested technical foundation
-
-- Web: React + TypeScript
+The intended future implementation is a modular monolith with:
+- Web application: React + TypeScript
 - API: NestJS + TypeScript
 - Database: PostgreSQL
-- Device adapter: isolated service using documented vendor SDK / supported PC/SC interfaces where applicable
 - API contracts: OpenAPI
-- Tests: unit, integration and tenant-isolation tests
-- Deployment: target to be selected by the authorised system owner
+- Automated unit, integration and tenant-isolation tests
+- Isolated device adapter only for approved non-production test hardware after card technology compatibility is confirmed
 
-Start as a modular monolith with clear domain boundaries. Split services only when justified by verified requirements.
+The current static prototype is deliberately not a substitute for that backend architecture.
+
+## Safety and data governance
+
+1. Keep all public repository fixtures synthetic.
+2. Never commit actual TUDM personnel, visitor, credential, facility, operational or classified information.
+3. Do not store raw card identifiers or unnecessary personal data.
+4. A card UID alone is not proof of identity. Existing card compatibility must be assessed by frequency, chip, protocol and authentication method before selecting reader hardware.
+5. Keep RFID work test-only and separate from physical access decision systems.
+6. Production data must only be handled in infrastructure explicitly approved by the agency.
+7. Agency-specific profile fields, roles, workflows and module switches should be configurable rather than hard-coded into shared domain logic.
 
 ## Repository map
 
 ```
-apps/web/                 # TUDM-first administration UI
-apps/api/                 # modular application API
-services/device-adapter/  # isolated, test-only reader adapter
-packages/contracts/       # shared DTOs and API contracts
-database/schema/          # PostgreSQL schema
-database/migrations/      # versioned migrations
-database/seeds/           # synthetic demo configuration and profiles only
-assets/profiles/          # original synthetic vector avatars
-mockups/profiles/         # static profile gallery mockup
-docs/architecture/
-docs/configuration/
-docs/database/
-docs/security/
-tests/unit/
-tests/integration/
-tests/tenant-isolation/
+index.html                 # GitHub Pages application shell
+app.js                     # interactive browser prototype
+assets/profiles/           # synthetic vector avatar illustrations
+mockups/profiles/          # earlier standalone profile gallery
+database/schema/           # PostgreSQL schema draft
+database/migrations/       # versioned schema changes
+database/seeds/            # synthetic demo tenant and records
+tests/                     # Playwright browser tests
+.github/workflows/         # browser test and Pages deployment workflows
+docs/                      # architecture, configuration, security notes
 ```
+
+## Browser test coverage
+
+GitHub Actions runs Playwright/Chromium tests for dashboard navigation, profile search and filters, profile detail and edit, administrative request creation and simulated review, demo credential metadata, role display, reports, audit events and mobile layout.
 
 ## Development sequence
 
-1. TUDM-first database foundation and tenant-safe configuration.
-2. Authentication, roles and permissions.
-3. Personnel identity and profile administration.
-4. Visitor, contractor and vehicle administration.
-5. RFID compatibility prototype after the existing card technology is confirmed.
-6. Administrative workflows, audit, reporting and hybrid sync design.
-7. Formal agency review and authorisation before any real-data pilot.
+1. Complete the TUDM-first administrative prototype and validate workflows with synthetic data.
+2. Review and execute database migrations in a controlled development PostgreSQL environment.
+3. Implement backend authentication, authorisation, API contracts and server-side tenant isolation.
+4. Add visitor, contractor, vehicle and appointment administration with approved requirements.
+5. Assess existing card technology before any test-only reader integration.
+6. Complete security, privacy, operational and agency approval before any real-data pilot.
 
-## Contribution rule
-
-Before implementing a feature, document its TUDM workflow, module ownership, tenant scope, authorisation requirements, data sensitivity/retention and tests. Use synthetic data in every development fixture.
-
-Do not add real personnel records, card numbers, facility details, network diagrams, security procedures or operational instructions to source control or public issue discussions.
+**Do not use this public prototype for real TUDM records or operational access control.**
