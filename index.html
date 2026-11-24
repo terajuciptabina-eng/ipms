@@ -103,6 +103,54 @@
   .stat strong{font-size:17px}
 }
 
+
+/* Hard containment for narrow Safari/iPhone viewports */
+@media(max-width:800px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  .app{display:block;width:100%;max-width:100%;min-width:0;overflow-x:clip}
+  .sidebar,.main{width:100%;max-width:100%;min-width:0}
+  .sidebar{overflow:hidden}
+  .sidebar>div{width:100%;max-width:100%;min-width:0}
+  .nav{width:100%;max-width:100%;min-width:0;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden}
+  .nav a{flex:0 0 auto;min-width:max-content}
+  .content,.topbar,.top-right,.page-head,.hero,.hero-row,.stats,.stat,.dash-grid,.dash-grid>.panel,.quick-grid{min-width:0;max-width:100%}
+  .stats{width:100%;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat{overflow:hidden}
+  .hero p{overflow-wrap:anywhere}
+  .dash-grid{width:100%;grid-template-columns:minmax(0,1fr)}
+  .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .table-wrap{width:100%;max-width:100%;overflow-x:auto}
+}
+@media(max-width:520px){
+  .sidebar{gap:8px;padding:9px 10px}
+  .brand{width:100%;min-width:0}
+  .brand>div{min-width:0}
+  .brand-sub{overflow-wrap:anywhere}
+  .nav a{padding:9px 10px;font-size:12px}
+  .topbar{width:100%;padding:0 10px}
+  .top-right{gap:6px}
+  .content{width:100%;padding:16px 12px 30px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .stat{padding:10px;gap:7px}
+  .stat>span{width:30px;height:30px}
+  .stat>div{min-width:0}
+  .stat small{font-size:9px;overflow-wrap:anywhere}
+  .stat strong{font-size:18px}
+  .hero{width:100%;padding:17px}
+  .hero h2{font-size:16px}
+  .hero p{font-size:11px}
+  .dash-grid .panel header{min-width:0;gap:8px}
+  .dash-grid .panel header>div{min-width:0}
+}
+@media(max-width:360px){
+  .user-chip{font-size:0}
+  .user-avatar{font-size:11px}
+  .demo-pill{letter-spacing:0}
+  .content{padding-left:9px;padding-right:9px}
+  .stats{gap:7px}
+  .stat{padding:8px;gap:6px}
+}
+
 </style>
 </head>
 <body>
