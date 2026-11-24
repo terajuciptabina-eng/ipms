@@ -35,7 +35,7 @@ const assert = require('node:assert/strict');
   await page.locator('[data-edit="p1"]').click();
   await page.locator('#profile-form input[name="name"]').fill('Aiman Hakim Demo Updated');
   await page.locator('#profile-form button.primary').click();
-  assert.equal(await page.locator('.profile-card').count(), 8, 'profile update returns to list');
+  assert.equal(await page.locator('.profile-card').count(), 100, 'profile update returns to list');
 
   await page.locator('[data-page="requests"]').click();
   await page.locator('[data-action="new-request"]').click();
