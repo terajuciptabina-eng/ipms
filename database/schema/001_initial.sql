@@ -210,7 +210,28 @@ CREATE INDEX idx_identity_events_tenant_time ON identity_events(tenant_id, occur
 CREATE INDEX idx_admin_requests_tenant_status ON administrative_requests(tenant_id, request_status);
 CREATE INDEX idx_audit_events_tenant_time ON audit_events(tenant_id, occurred_at DESC);
 
--- Tenant isolation is enforced in application services and should additionally
--- be implemented with PostgreSQL Row-Level Security before any non-demo deployment.
--- RLS policies require a trusted server-set tenant context and a non-owner DB role.
--- Do not assume this schema alone is a production security approval.
+-- Fail-closed tenant isolation. The API must set app.tenant_id transaction-locally
+-- only after authenticating the user and verifying their tenant membership.
+-- The application DB role must not own these tables and must not have BYPASSRLS.
+DO $$
+DECLARE table_name TEXT;
+BEGIN
+  FOREACH table_name IN ARRAY ARRAY[
+    'tenant_configurations', 'organisation_units', 'profile_categories',
+    'person_profiles', 'credential_types', 'credentials', 'reader_registry',
+    'identity_events', 'administrative_requests', 'approval_records',
+    'application_users', 'tenant_roles', 'user_role_assignments', 'audit_events'
+  ] LOOP
+    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', table_name);
+    EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', table_name);
+    EXECUTE format(
+      'CREATE POLICY tenant_isolation ON %I USING (tenant_id = NULLIF(current_setting(''app.tenant_id'', true), '''')::uuid) WITH CHECK (tenant_id = NULLIF(current_setting(''app.tenant_id'', true), '''')::uuid)',
+      table_name
+    );
+  END LOOP;
+END $$;
+
+-- The tenants catalogue is platform-managed and must be accessed only through
+-- a separately authorised platform service. Do not expose it directly to end users.
+-- RLS is not a substitute for application authorisation, independent security review,
+-- key management, backup controls or agency production approval.
