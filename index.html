@@ -162,6 +162,25 @@
 .photo-disclaimer{margin:10px 0;padding:9px 11px;border:1px solid #dbe6ef;border-radius:8px;background:#f4f8fb;color:#536b80;font-size:10px;line-height:1.5}
 .avatar,.detail-avatar{object-fit:cover;background:#e7eef4}
 
+
+/* iPhone directory card and filter layout fixes */
+@media(max-width:520px){
+  .toolbar{display:grid;grid-template-columns:minmax(0,1fr);gap:9px}
+  .toolbar>input,.toolbar>select,.toolbar>.search-wrap{width:100%;min-width:0;max-width:100%}
+  .toolbar select{min-width:0;flex:none}
+  .person{align-items:center;min-width:0;gap:12px}
+  .person>div{display:block;flex:1;min-width:0}
+  .person b,.person small{display:block;max-width:100%;overflow-wrap:anywhere;word-break:normal}
+  .person b{font-size:13px;line-height:1.35}
+  .person small{font-size:10px;line-height:1.4;margin-top:4px;letter-spacing:.02em}
+  .profile-card{padding:14px}
+  .card-open{min-width:0}
+  .meta>div{align-items:flex-start;gap:10px}
+  .meta>div span{flex:0 0 38%;line-height:1.4}
+  .meta>div b{flex:1;min-width:0;text-align:right;overflow-wrap:anywhere;line-height:1.4}
+  .photo-disclaimer{font-size:11px}
+  .results{line-height:1.5;overflow-wrap:anywhere}
+}
 </style>
 </head>
 <body>
