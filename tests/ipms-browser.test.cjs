@@ -6,10 +6,16 @@ const assert = require('node:assert/strict');
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const errors = [];
+  const failedRequests = [];
   page.on('pageerror', e => errors.push(e.message));
+  page.on('requestfailed', r => failedRequests.push(r.url() + ' :: ' + (r.failure()?.errorText || 'request failed')));
   await page.goto('file://' + path.resolve('index.html'));
   await page.waitForLoadState('load');
-  await page.waitForSelector('.stat');
+  try {
+    await page.waitForSelector('.stat', { timeout: 8000 });
+  } catch (e) {
+    throw new Error('Dashboard did not render. Page errors: ' + errors.join(' | ') + '. Failed requests: ' + failedRequests.join(' | ') + '. Body: ' + (await page.locator('body').innerText()).slice(0, 1000));
+  }
 
   if (errors.length) throw new Error('Page errors: ' + errors.join(' | '));
   assert.match(await page.title(), /IPMS TUDM/);
