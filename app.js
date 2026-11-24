@@ -39,6 +39,7 @@ try{
 }catch(e){
   db=seed();
 }
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){return false}};
 // Keep existing browser records and deterministically top up the synthetic directory to 100 profiles.
 function ensureDemoProfiles(data){
   const given=[
@@ -82,7 +83,6 @@ function ensureDemoProfiles(data){
 }
 db=ensureDemoProfiles(db);
 save();
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){return false}};
 const log=(action,subject)=>{db.audit.unshift({date:new Date().toISOString(),action,subject});db.audit=db.audit.slice(0,300);save()};
 const pill=s=>'<span class="pill '+esc(s)+'">'+esc(states[s]||s)+'</span>';
 let page="dashboard",term="",cat="",status="";
