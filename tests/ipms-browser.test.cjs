@@ -25,6 +25,8 @@ const assert = require('node:assert/strict');
   assert.equal(await page.locator('.profile-card').count(), 50, 'profile pagination');
   await page.locator('[data-profile-page="1"]').click();
   assert.equal(await page.locator('.profile-card img').count(), 50, 'visible page profile avatars');
+  assert.ok((await page.locator('.profile-card img').first().getAttribute('src')).startsWith('https://randomuser.me/api/portraits/'), 'profile uses public Random User portrait');
+  assert.match(await page.locator('.photo-disclaimer').innerText(), /bukan gambar anggota TUDM sebenar/i, 'demo photo disclosure is visible');
   await page.locator('[data-profile-page="25"]').click();
   assert.equal(await page.locator('.profile-card').count(), 34, 'last page contains remaining 34 profiles');
   await page.locator('[data-profile-page="1"]').click();
