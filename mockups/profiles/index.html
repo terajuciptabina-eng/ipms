@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IPMS TUDM — Demo Profiles</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#18212f;background:#f3f6fa}
+*{box-sizing:border-box}body{margin:0}.shell{max-width:1180px;margin:auto;padding:28px 22px 56px}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:12px}.mark{width:44px;height:44px;border-radius:13px;background:#173b5e;color:#fff;display:grid;place-items:center;font-weight:800;letter-spacing:-1px}
+h1{font-size:22px;margin:0 0 3px} .sub{color:#6b7788;font-size:13px}
+.demo{font-size:11px;font-weight:800;letter-spacing:.08em;color:#9a5b16;background:#fff0d9;border:1px solid #f4d5a7;padding:8px 11px;border-radius:99px}
+.intro{background:linear-gradient(120deg,#173b5e,#245e7b);color:white;padding:26px;border-radius:18px;margin-bottom:22px}
+.intro h2{font-size:25px;margin:0 0 7px}.intro p{margin:0;color:#dbe8f0;max-width:720px;line-height:1.55;font-size:14px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+input,select{border:1px solid #d9e0e8;border-radius:10px;padding:11px 13px;background:white;color:#263445;font:inherit}
+input{flex:1;min-width:220px}.count{color:#748092;font-size:13px;margin:4px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.card{background:white;border:1px solid #e4e9ef;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(25,45,70,.035)}
+.person{display:flex;align-items:center;gap:12px;margin-bottom:14px}.avatar{width:66px;height:66px;border-radius:50%;object-fit:cover;background:#edf1f5}
+.name{font-weight:750;font-size:14px;line-height:1.35}.ref{font-size:11px;color:#7b8796;margin-top:4px}
+.meta{border-top:1px solid #edf0f4;padding-top:11px;display:grid;gap:8px}
+.line{display:flex;justify-content:space-between;gap:10px;font-size:12px}.key{color:#8792a1}.value{font-weight:600;text-align:right;color:#354254}
+.status{display:inline-flex;border-radius:99px;padding:4px 8px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.active{background:#e3f5eb;color:#237449}.pending{background:#fff2d9;color:#97630d}.inactive,.suspended{background:#fce8e8;color:#a33b3b}
+.empty{display:none;background:white;border:1px dashed #cbd4df;padding:30px;text-align:center;border-radius:14px;color:#748092}
+footer{margin-top:25px;color:#7b8796;font-size:12px;line-height:1.6}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.shell{padding:18px 14px 40px}header{align-items:flex-start}.grid{grid-template-columns:1fr}.intro{padding:20px}.intro h2{font-size:21px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header>
+ <div class="brand"><div class="mark">IP</div><div><h1>IPMS TUDM</h1><div class="sub">Identity &amp; Profiling Management System</div></div></div>
+ <div class="demo">DEMO DATA ONLY</div>
+</header>
+<section class="intro">
+ <h2>Pengurusan Profil</h2>
+ <p>Mockup paparan direktori profil untuk edisi pembangunan TUDM. Semua nama, gambar, nombor rujukan dan butiran di halaman ini adalah rekaan bagi tujuan demonstrasi sahaja.</p>
+</section>
+<section class="toolbar" aria-label="Profile filters">
+ <input id="search" type="search" placeholder="Cari nama atau nombor profil…" aria-label="Cari profil">
+ <select id="category" aria-label="Kategori"><option value="">Semua kategori</option><option value="personnel">Anggota / Personel</option><option value="visitor">Pelawat</option><option value="contractor">Kontraktor</option></select>
+ <select id="status" aria-label="Status"><option value="">Semua status</option><option value="active">Aktif</option><option value="pending">Menunggu</option><option value="inactive">Tidak aktif</option><option value="suspended">Digantung</option></select>
+</section>
+<div class="count" id="count">8 profil contoh</div>
+<section class="grid" id="grid">
+<article class="card" data-name="aiman hakim bin razak" data-ref="demo-p-0001" data-category="personnel" data-status="active">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-01.svg" alt="Avatar ilustrasi profil demo 01"><div><div class="name">Aiman Hakim bin Razak</div><div class="ref">DEMO-P-0001</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Personel</span></div><div class="line"><span class="key">Jawatan contoh</span><span class="value">Pegawai Pentadbiran Demo</span></div><div class="line"><span class="key">Unit</span><span class="value">Unit Pentadbiran Demo</span></div><div class="line"><span class="key">Status</span><span class="status active">Aktif</span></div></div>
+</article>
+<article class="card" data-name="nur aisyah binti rahman" data-ref="demo-p-0002" data-category="personnel" data-status="active">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-02.svg" alt="Avatar ilustrasi profil demo 02"><div><div class="name">Nur Aisyah binti Rahman</div><div class="ref">DEMO-P-0002</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Personel</span></div><div class="line"><span class="key">Jawatan contoh</span><span class="value">Penyelia Sokongan Demo</span></div><div class="line"><span class="key">Unit</span><span class="value">Unit Sokongan Teknikal Demo</span></div><div class="line"><span class="key">Status</span><span class="status active">Aktif</span></div></div>
+</article>
+<article class="card" data-name="muhammad danish bin ismail" data-ref="demo-p-0003" data-category="personnel" data-status="active">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-03.svg" alt="Avatar ilustrasi profil demo 03"><div><div class="name">Muhammad Danish bin Ismail</div><div class="ref">DEMO-P-0003</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Personel</span></div><div class="line"><span class="key">Jawatan contoh</span><span class="value">Juruteknik Demo</span></div><div class="line"><span class="key">Unit</span><span class="value">Unit Sokongan Teknikal Demo</span></div><div class="line"><span class="key">Status</span><span class="status active">Aktif</span></div></div>
+</article>
+<article class="card" data-name="siti nur balqis binti hamdan" data-ref="demo-p-0004" data-category="personnel" data-status="inactive">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-04.svg" alt="Avatar ilustrasi profil demo 04"><div><div class="name">Siti Nur Balqis binti Hamdan</div><div class="ref">DEMO-P-0004</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Personel</span></div><div class="line"><span class="key">Jawatan contoh</span><span class="value">Penyelaras Rekod Demo</span></div><div class="line"><span class="key">Unit</span><span class="value">Unit Operasi Pentadbiran Demo</span></div><div class="line"><span class="key">Status</span><span class="status inactive">Tidak aktif</span></div></div>
+</article>
+<article class="card" data-name="farid azman bin salleh" data-ref="demo-v-0001" data-category="visitor" data-status="active">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-05.svg" alt="Avatar ilustrasi profil demo 05"><div><div class="name">Farid Azman bin Salleh</div><div class="ref">DEMO-V-0001</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Pelawat</span></div><div class="line"><span class="key">Tujuan</span><span class="value">Mesyuarat Demo</span></div><div class="line"><span class="key">Penaja contoh</span><span class="value">Pegawai Pengiring Demo</span></div><div class="line"><span class="key">Status</span><span class="status active">Aktif</span></div></div>
+</article>
+<article class="card" data-name="nadia izzati binti omar" data-ref="demo-v-0002" data-category="visitor" data-status="pending">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-06.svg" alt="Avatar ilustrasi profil demo 06"><div><div class="name">Nadia Izzati binti Omar</div><div class="ref">DEMO-V-0002</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Pelawat</span></div><div class="line"><span class="key">Tujuan</span><span class="value">Urusan Pentadbiran Demo</span></div><div class="line"><span class="key">Penaja contoh</span><span class="value">Unit Penerima Demo</span></div><div class="line"><span class="key">Status</span><span class="status pending">Menunggu</span></div></div>
+</article>
+<article class="card" data-name="kumaravel a l muthu" data-ref="demo-c-0001" data-category="contractor" data-status="active">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-07.svg" alt="Avatar ilustrasi profil demo 07"><div><div class="name">Kumaravel a/l Muthu</div><div class="ref">DEMO-C-0001</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Kontraktor</span></div><div class="line"><span class="key">Syarikat contoh</span><span class="value">Syarikat Contoh Teknikal</span></div><div class="line"><span class="key">Kategori kerja</span><span class="value">Penyelenggaraan Demo</span></div><div class="line"><span class="key">Status</span><span class="status active">Aktif</span></div></div>
+</article>
+<article class="card" data-name="lim wei jian" data-ref="demo-c-0002" data-category="contractor" data-status="suspended">
+ <div class="person"><img class="avatar" src="../../assets/profiles/avatar-08.svg" alt="Avatar ilustrasi profil demo 08"><div><div class="name">Lim Wei Jian</div><div class="ref">DEMO-C-0002</div></div></div>
+ <div class="meta"><div class="line"><span class="key">Kategori</span><span class="value">Kontraktor</span></div><div class="line"><span class="key">Syarikat contoh</span><span class="value">Kontraktor Contoh Enterprise</span></div><div class="line"><span class="key">Kategori kerja</span><span class="value">Perkhidmatan Sokongan Demo</span></div><div class="line"><span class="key">Status</span><span class="status suspended">Digantung</span></div></div>
+</article>
+</section>
+<div class="empty" id="empty">Tiada profil yang sepadan dengan carian.</div>
+<footer>IPMS TUDM mockup • Semua profil dan avatar adalah rekaan. Tiada data anggota sebenar digunakan. Ini ialah demonstrasi UI sahaja, bukan sistem operasi atau sistem kawalan akses fizikal.</footer>
+</main>
+<script>
+const search=document.querySelector("#search"),category=document.querySelector("#category"),status=document.querySelector("#status"),cards=[...document.querySelectorAll(".card")],count=document.querySelector("#count"),empty=document.querySelector("#empty"),grid=document.querySelector("#grid");
+function filter(){const q=search.value.trim().toLowerCase(),c=category.value,s=status.value;let shown=0;for(const card of cards){const matchText=(card.dataset.name+" "+card.dataset.ref).includes(q),matchCategory=!c||card.dataset.category===c,matchStatus=!s||card.dataset.status===s,visible=matchText&&matchCategory&&matchStatus;card.hidden=!visible;if(visible)shown++}count.textContent=shown+" profil dipaparkan";empty.style.display=shown?"none":"block"}
+[search,category,status].forEach(el=>el.addEventListener("input",filter));
+</script>
+</body>
+</html>
