@@ -1,7 +1,12 @@
 -- Synthetic TUDM-first development tenant only. Not official TUDM data/configuration.
+BEGIN;
+
 INSERT INTO tenants (id, tenant_key, display_name, short_name)
 VALUES ('11111111-1111-4111-8111-111111111111', 'tudm-demo', 'TUDM Demo Workspace', 'TUDM DEMO')
 ON CONFLICT (tenant_key) DO NOTHING;
+
+-- Demo seed only: set the tenant context inside this transaction for RLS-protected tables.
+SET LOCAL app.tenant_id = '11111111-1111-4111-8111-111111111111';
 
 INSERT INTO tenant_configurations (tenant_id, version, schema_version, configuration)
 SELECT id, 1, 1,
@@ -62,3 +67,5 @@ CROSS JOIN (VALUES
 ) AS v(role_key, role_name, description)
 WHERE tenant_key = 'tudm-demo'
 ON CONFLICT (tenant_id, role_key) DO NOTHING;
+
+COMMIT;
