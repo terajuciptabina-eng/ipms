@@ -61,6 +61,21 @@ const assert = require('node:assert/strict');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('[data-page="dashboard"]').click();
   assert.equal(await page.locator('.stat').count(), 4, 'mobile dashboard');
+  assert.equal(await page.locator('.dash-grid').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length), 1, 'mobile dashboard panels stack');
+  assert.ok(await page.locator('.quick').first().evaluate(el => el.getBoundingClientRect().height >= 40), 'mobile quick actions have touch-friendly height');
+  assert.ok(await page.locator('body').evaluate(el => el.scrollWidth <= window.innerWidth), 'mobile dashboard has no page-level horizontal overflow');
+
+  await page.locator('[data-page="requests"]').click();
+  const mobileTable = page.locator('.table-wrap').first();
+  assert.ok(await mobileTable.evaluate(el => el.scrollWidth > el.clientWidth), 'wide data table scrolls inside its own container');
+  await page.locator('[data-request]').first().click();
+  assert.ok(await page.locator('.modal').evaluate(el => el.getBoundingClientRect().width <= window.innerWidth), 'modal fits mobile viewport');
+  await page.locator('[data-close]').first().click();
+
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.locator('[data-page="dashboard"]').click();
+  assert.equal(await page.locator('.stat').count(), 4, 'small-screen dashboard');
+  assert.ok(await page.locator('body').evaluate(el => el.scrollWidth <= window.innerWidth), '320px layout has no page-level horizontal overflow');
   assert.equal(errors.length, 0, 'no uncaught page errors');
 
   // The dashboard must still render when browser storage is blocked (e.g. privacy restrictions).
