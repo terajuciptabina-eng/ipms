@@ -82,6 +82,32 @@ function ensureDemoProfiles(data){
   return data;
 }
 db=ensureDemoProfiles(db);
+// Synthetic access-history examples, explicitly scoped to Pangkalan Udara Subang.
+const ACCESS_SITE="Pangkalan Udara Subang";
+if(!Array.isArray(db.accessLogs)||db.accessLogs.length===0){
+  const samples=[
+    ["p1","2026-11-24T07:42:00+08:00","Masuk","Dibenarkan","Tugas pentadbiran"],
+    ["p2","2026-11-24T07:55:00+08:00","Masuk","Dibenarkan","Tugas sokongan"],
+    ["p5","2026-11-24T08:16:00+08:00","Masuk","Dibenarkan","Mesyuarat demo"],
+    ["p6","2026-11-24T08:31:00+08:00","Masuk","Menunggu semakan","Urusan pentadbiran demo"],
+    ["p7","2026-11-24T09:05:00+08:00","Masuk","Dibenarkan","Kerja penyelenggaraan demo"],
+    ["p8","2026-11-24T09:28:00+08:00","Masuk","Ditolak","Dokumen demo tidak lengkap"],
+    ["p3","2026-11-24T12:04:00+08:00","Keluar","Direkodkan","Tamat urusan"],
+    ["p1","2026-11-24T12:18:00+08:00","Keluar","Direkodkan","Urusan selesai"],
+    ["p5","2026-11-24T13:02:00+08:00","Keluar","Direkodkan","Mesyuarat tamat"],
+    ["p9","2026-11-24T13:24:00+08:00","Masuk","Dibenarkan","Urusan lawatan demo"],
+    ["p10","2026-11-24T14:10:00+08:00","Masuk","Dibenarkan","Tugas pentadbiran demo"],
+    ["p7","2026-11-24T16:42:00+08:00","Keluar","Direkodkan","Kerja selesai"]
+  ];
+  db.accessLogs=samples.map((x,i)=>({
+    id:"access-demo-"+String(i+1).padStart(3,"0"),
+    ref:"ACC-SUB-"+String(i+1).padStart(4,"0"),
+    profileId:x[0],site:ACCESS_SITE,
+    checkpoint:"Pintu masuk (simulasi)",
+    timestamp:x[1],direction:x[2],decision:x[3],purpose:x[4],
+    source:"Reader demo — simulasi sahaja"
+  }));
+}
 save();
 const log=(action,subject)=>{db.audit.unshift({date:new Date().toISOString(),action,subject});db.audit=db.audit.slice(0,300);save()};
 const pill=s=>'<span class="pill '+esc(s)+'">'+esc(states[s]||s)+'</span>';
