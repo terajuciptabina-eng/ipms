@@ -131,7 +131,8 @@ db=ensureDemoAccessLogs(db);
 save();
 const log=(action,subject)=>{db.audit.unshift({date:new Date().toISOString(),action,subject});db.audit=db.audit.slice(0,300);save()};
 const pill=s=>'<span class="pill '+esc(s)+'">'+esc(states[s]||s)+'</span>';
-let page="dashboard",term="",cat="",status="",profilePageIndex=1;\nconst PROFILE_PAGE_SIZE=50;
+let page="dashboard",term="",cat="",status="",profilePageIndex=1;
+const PROFILE_PAGE_SIZE=50;
 function toast(s){const t=$("#toast");t.textContent=s;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2300)}
 function nav(){return}
 function go(p){page=p;term="";cat="";status="";$$("[data-page]").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("#page-title").textContent=({dashboard:"Ringkasan",profiles:"Direktori Profil",visitors:"Pengurusan Pelawat",contractors:"Pengurusan Kontraktor",requests:"Rekod Pentadbiran",cards:"Kad Demo",access:"Rekod Kemasukan",users:"Pengguna & Peranan",reports:"Laporan",audit:"Log Aktiviti",settings:"Konfigurasi"})[p];render()}
@@ -171,7 +172,8 @@ function newRequest(){modal("Permohonan baharu",'<form id="request-form" class="
 function exportData(type){let rows=db[type]||[];if(!rows.length){toast("Tiada data.");return}let keys=[...new Set(rows.flatMap(x=>Object.keys(x)))];let csv=[keys.join(","),...rows.map(r=>keys.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(","))].join("\r\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="ipms-demo-"+type+".csv";a.click();URL.revokeObjectURL(a.href);log("CSV dieksport",type)}
 document.addEventListener("click",e=>{
 let n=e.target.closest("[data-page]");if(n){e.preventDefault();profilePageIndex=1;go(n.dataset.page);return}
-let g=e.target.closest("[data-go]");if(g){profilePageIndex=1;go(g.dataset.go);return}\nlet pp=e.target.closest("[data-profile-page]");if(pp){profilePageIndex=Math.max(1,Number(pp.dataset.profilePage)||1);render();return}
+let g=e.target.closest("[data-go]");if(g){profilePageIndex=1;go(g.dataset.go);return}
+let pp=e.target.closest("[data-profile-page]");if(pp){profilePageIndex=Math.max(1,Number(pp.dataset.profilePage)||1);render();return}
 let a=e.target.closest("[data-action]");if(a){let v=a.dataset.action;if(v==="new-profile")profileForm();if(v==="new-request")newRequest();if(v==="new-card")newCard();if(v==="save-settings"){db.org=ACCESS_SITE;save();log("Konfigurasi disimpan",ACCESS_SITE);toast("Disimpan.")}if(v==="reset"&&confirm("Reset semua data demo browser ini?")){db=ensureDemoProfiles(seed());db=ensureDemoAccessLogs(db);save();go("dashboard");toast("Data demo dipulihkan.")}}
 let p=e.target.closest("[data-profile]");if(p){let x=db.profiles.find(q=>q.id===p.dataset.profile);if(x)detail(x)}
 let ed=e.target.closest("[data-edit]");if(ed){let x=db.profiles.find(q=>q.id===ed.dataset.edit);if(x)profileForm(x)}
