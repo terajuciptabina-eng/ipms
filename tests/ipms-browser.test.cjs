@@ -13,6 +13,7 @@ const assert = require('node:assert/strict');
 
   if (errors.length) throw new Error('Page errors: ' + errors.join(' | '));
   assert.match(await page.title(), /IPMS TUDM/);
+  await page.locator('[data-page="profiles"]').click();
   assert.equal(await page.locator('.profile-card').count(), 8, 'seeded profile cards');
   assert.equal(await page.locator('.profile-card img').count(), 8, 'profile avatars');
 
