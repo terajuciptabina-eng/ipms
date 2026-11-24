@@ -2,7 +2,7 @@
 
 **Current product focus: IPMS TUDM Edition.** The first implementation is being designed around the administrative identity and profiling needs of Tentera Udara Diraja Malaysia (TUDM). The platform architecture will remain extensible so it can be configured for other agencies in the future, but TDM, TLDM and other agency editions are not current development targets.
 
-> **Development status:** foundation and schema work in progress. This repository is currently public and contains software source/documentation only. Use synthetic records. Do not commit real personnel, visitor, credential, facility, operational or classified information. Production use requires written authorisation from the relevant agency, security/privacy review and an approved deployment environment.
+> **Development status:** foundation and mockup work in progress. This repository is currently public and contains software source/documentation only. Use synthetic records. Do not commit real personnel, visitor, credential, facility, operational or classified information. Production use requires written authorisation from the relevant agency, security/privacy review and an approved deployment environment.
 
 ## Current scope — TUDM
 
@@ -17,6 +17,29 @@
 - Reporting, user/role administration and audit trail
 
 Physical access decisions, gate/barrier control and integration with operational security systems are explicitly outside this prototype scope. The system must not be treated as an approved physical access-control system.
+
+## Profile gallery mockup
+
+A responsive static UI mockup with eight fictional profiles and illustrated avatars is available at:
+
+- [Open profile gallery source](mockups/profiles/index.html)
+- [View synthetic profile seed](database/seeds/003_tudm_demo_profiles.sql)
+- [View avatar assets](assets/profiles/)
+
+The profile gallery includes search and filters for category and status. The avatars are original vector illustrations, not photographs of real people. Every name, reference number, email, phone number, organisation label and profile detail is fictional and intended only for UI demonstration.
+
+## Database files
+
+Apply in this order:
+
+1. `database/schema/001_initial.sql`
+2. `database/migrations/002_configuration_extensions.sql`
+3. `database/migrations/003_profile_avatar_path.sql`
+4. `database/seeds/001_tudm_demo.sql`
+5. `database/seeds/002_tudm_demo_permissions.sql`
+6. `database/seeds/003_tudm_demo_profiles.sql`
+
+The seed files create only a synthetic `tudm-demo` tenant. They do not contain actual TUDM personnel data. The SQL has been committed but has not yet been executed against a PostgreSQL instance.
 
 ## Future extensibility
 
@@ -53,7 +76,10 @@ apps/api/                 # modular application API
 services/device-adapter/  # isolated, test-only reader adapter
 packages/contracts/       # shared DTOs and API contracts
 database/schema/          # PostgreSQL schema
-database/seeds/           # synthetic demo configuration only
+database/migrations/      # versioned migrations
+database/seeds/           # synthetic demo configuration and profiles only
+assets/profiles/          # original synthetic vector avatars
+mockups/profiles/         # static profile gallery mockup
 docs/architecture/
 docs/configuration/
 docs/database/
