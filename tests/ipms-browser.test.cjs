@@ -51,10 +51,15 @@ const assert = require('node:assert/strict');
   await page.locator('#card-form button.primary').click();
   assert.equal(await page.locator('tbody tr').count(), 3, 'demo card metadata added');
 
+  await page.locator('[data-page="access"]').click();
+  assert.match(await page.locator('#view').innerText(), /Pangkalan Udara Subang/, 'access records are scoped to Subang');
+  assert.equal(await page.locator('.table-wrap tbody tr').count(), 12, '12 synthetic access records');
+  assert.match(await page.locator('#view').innerText(), /Reader demo — simulasi sahaja/, 'access source is labelled as simulation');
+
   await page.locator('[data-page="users"]').click();
   assert.equal(await page.locator('tbody tr').count(), 3, 'demo roles display');
   await page.locator('[data-page="reports"]').click();
-  assert.equal(await page.locator('[data-export]').count(), 4, 'CSV export options');
+  assert.equal(await page.locator('[data-export]').count(), 5, 'CSV export options');
   await page.locator('[data-page="audit"]').click();
   assert.ok(await page.locator('tbody tr').count() >= 4, 'audit events recorded');
 
@@ -113,6 +118,6 @@ const assert = require('node:assert/strict');
   assert.equal(await malformedDataPage.locator('.stat').count(), 4, 'dashboard renders with malformed storage');
   await malformedDataPage.close();
 
-  console.log('PASS: dashboard, profile list/search/filter, profile details/edit, request create/review, demo card create, role display, reports, audit trail, mobile layout, blocked storage, stale storage and malformed storage.');
+  console.log('PASS: dashboard, profile list/search/filter, profile details/edit, request create/review, demo card create, Subang access logs, role display, reports, audit trail, mobile layout, blocked storage, stale storage and malformed storage.');
   await browser.close();
 })().catch(e => { console.error(e); process.exit(1); });
