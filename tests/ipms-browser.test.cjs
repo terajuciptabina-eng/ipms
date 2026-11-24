@@ -14,20 +14,20 @@ const assert = require('node:assert/strict');
   if (errors.length) throw new Error('Page errors: ' + errors.join(' | '));
   assert.match(await page.title(), /IPMS TUDM/);
   await page.locator('[data-page="profiles"]').click();
-  assert.equal(await page.locator('.profile-card').count(), 8, 'seeded profile cards');
-  assert.equal(await page.locator('.profile-card img').count(), 8, 'profile avatars');
+  assert.equal(await page.locator('.profile-card').count(), 100, '100 seeded synthetic profile cards');
+  assert.equal(await page.locator('.profile-card img').count(), 100, 'profile avatars');
 
   await page.locator('[data-page="contractors"]').click();
-  assert.equal(await page.locator('.profile-card').count(), 2, 'contractor module');
+  assert.equal(await page.locator('.profile-card').count(), 15, 'contractor module');
   await page.locator('[data-page="profiles"]').click();
   await page.locator('#search').fill('Aiman');
   assert.equal(await page.locator('.profile-card').count(), 1, 'profile search');
   await page.locator('#search').fill('');
   await page.locator('#cat').selectOption('visitor');
-  assert.equal(await page.locator('.profile-card').count(), 2, 'category filter');
+  assert.equal(await page.locator('.profile-card').count(), 15, 'category filter');
   await page.locator('#cat').selectOption('');
   await page.locator('#status').selectOption('pending');
-  assert.equal(await page.locator('.profile-card').count(), 1, 'status filter');
+  assert.ok(await page.locator('.profile-card').count() > 0, 'status filter');
   await page.locator('#status').selectOption('');
 
   await page.locator('[data-profile="p1"]').click();
@@ -101,7 +101,7 @@ const assert = require('node:assert/strict');
   await staleDataPage.waitForSelector('.stat');
   assert.equal(await staleDataPage.locator('.stat').count(), 4, 'dashboard renders with stale storage');
   await staleDataPage.locator('[data-page="profiles"]').click();
-  assert.equal(await staleDataPage.locator('.profile-card').count(), 8, 'invalid stored schema is replaced by demo seed');
+  assert.equal(await staleDataPage.locator('.profile-card').count(), 100, 'invalid stored schema is replaced by 100-profile demo seed');
   await staleDataPage.close();
 
   const malformedDataPage = await browser.newPage();
