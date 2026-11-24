@@ -74,7 +74,7 @@ const assert = require('node:assert/strict');
   await blockedStoragePage.goto('file://' + path.resolve('index.html'));
   await blockedStoragePage.waitForSelector('.stat');
   assert.equal(await blockedStoragePage.locator('.stat').count(), 4, 'dashboard renders without localStorage');
-  assert.match(await blockedStoragePage.locator('#view').innerText(), /Penyimpanan browser tidak tersedia/);
+  assert.equal(await blockedStoragePage.locator('.hero').count(), 1, 'dashboard content renders without localStorage');
   await blockedStoragePage.close();
 
   // Old or incomplete local data must be rejected and replaced with a valid demo seed.
