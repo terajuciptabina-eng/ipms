@@ -76,6 +76,28 @@ const assert = require('node:assert/strict');
   assert.equal(await blockedStoragePage.locator('.stat').count(), 4, 'dashboard renders without localStorage');
   assert.match(await blockedStoragePage.locator('#view').innerText(), /Penyimpanan browser tidak tersedia/);
   await blockedStoragePage.close();
-  console.log('PASS: dashboard, profile list/search/filter, profile details/edit, request create/review, demo card create, role display, reports, audit trail, mobile layout.');
+
+  // Old or incomplete local data must be rejected and replaced with a valid demo seed.
+  const staleDataPage = await browser.newPage();
+  await staleDataPage.addInitScript(() => {
+    localStorage.setItem('ipms-tudm-demo-v3', JSON.stringify({ profiles: [], requests: [] }));
+  });
+  await staleDataPage.goto('file://' + path.resolve('index.html'));
+  await staleDataPage.waitForSelector('.stat');
+  assert.equal(await staleDataPage.locator('.stat').count(), 4, 'dashboard renders with stale storage');
+  await staleDataPage.locator('[data-page="profiles"]').click();
+  assert.equal(await staleDataPage.locator('.profile-card').count(), 8, 'invalid stored schema is replaced by demo seed');
+  await staleDataPage.close();
+
+  const malformedDataPage = await browser.newPage();
+  await malformedDataPage.addInitScript(() => {
+    localStorage.setItem('ipms-tudm-demo-v3', '{invalid-json');
+  });
+  await malformedDataPage.goto('file://' + path.resolve('index.html'));
+  await malformedDataPage.waitForSelector('.stat');
+  assert.equal(await malformedDataPage.locator('.stat').count(), 4, 'dashboard renders with malformed storage');
+  await malformedDataPage.close();
+
+  console.log('PASS: dashboard, profile list/search/filter, profile details/edit, request create/review, demo card create, role display, reports, audit trail, mobile layout, blocked storage, stale storage and malformed storage.');
   await browser.close();
 })().catch(e => { console.error(e); process.exit(1); });
