@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+.next/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local databases and uploads
+*.db
+*.sqlite
+uploads/
+local-data/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
