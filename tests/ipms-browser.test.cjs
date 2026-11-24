@@ -62,6 +62,20 @@ const assert = require('node:assert/strict');
   await page.locator('[data-page="dashboard"]').click();
   assert.equal(await page.locator('.stat').count(), 4, 'mobile dashboard');
   assert.equal(errors.length, 0, 'no uncaught page errors');
+
+  // The dashboard must still render when browser storage is blocked (e.g. privacy restrictions).
+  const blockedStoragePage = await browser.newPage();
+  await blockedStoragePage.addInitScript(() => {
+    Object.defineProperty(window, 'localStorage', {
+      configurable: true,
+      get() { throw new DOMException('Storage access blocked', 'SecurityError'); }
+    });
+  });
+  await blockedStoragePage.goto('file://' + path.resolve('index.html'));
+  await blockedStoragePage.waitForSelector('.stat');
+  assert.equal(await blockedStoragePage.locator('.stat').count(), 4, 'dashboard renders without localStorage');
+  assert.match(await blockedStoragePage.locator('#view').innerText(), /Penyimpanan browser tidak tersedia/);
+  await blockedStoragePage.close();
   console.log('PASS: dashboard, profile list/search/filter, profile details/edit, request create/review, demo card create, role display, reports, audit trail, mobile layout.');
   await browser.close();
 })().catch(e => { console.error(e); process.exit(1); });
