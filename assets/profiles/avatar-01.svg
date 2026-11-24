@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Demo Profile 01">
+<rect width="128" height="128" rx="64" fill="#DCEAF4"/>
+<circle cx="64" cy="64" r="59" fill="none" stroke="#FFFFFF" stroke-width="3" opacity=".85"/>
+<path d="M20 128 Q23 91 48 86 L80 86 Q105 91 108 128Z" fill="#243B53"/>
+<path d="M51 83 L64 99 L77 83 L84 91 L64 119 L44 91Z" fill="#F2F4F7"/>
+<path d="M53 74 H75 V91 Q64 104 53 91Z" fill="#9B654A"/>
+<path d="M35 58 Q30 20 61 18 Q91 18 91 57 Q78 42 64 42 Q48 43 35 58Z" fill="#25201F"/>
+<ellipse cx="64" cy="57" rx="25" ry="31" fill="#9B654A"/>
+<path d="M39 55 Q36 39 48 29 Q61 17 78 28 Q91 36 89 55 Q81 43 72 41 Q57 46 39 55Z" fill="#25201F"/>
+<path d="M37 53 Q37 25 62 24 Q84 24 88 51 Q73 38 61 40 Q47 40 37 53Z" fill="#25201F"/>
+<ellipse cx="54" cy="59" rx="2.2" ry="1.8" fill="#282321"/>
+<ellipse cx="74" cy="59" rx="2.2" ry="1.8" fill="#282321"/>
+<path d="M59 72 Q64 75 69 72" fill="none" stroke="#794B3A" stroke-width="2" stroke-linecap="round"/>
+<path d="M48 51 Q54 48 59 51 M69 51 Q75 48 80 51" fill="none" stroke="#25201F" stroke-width="2" stroke-linecap="round"/>
+<path d="M58 63 Q56 68 60 68" fill="none" stroke="#9A624B" stroke-width="1.5" stroke-linecap="round"/>
+<path d="M45 93 L64 110 L83 93" fill="none" stroke="#FFFFFF" stroke-width="2" opacity=".75"/>
+</svg>
