@@ -31,6 +31,7 @@ jobs:
         run: |
           mkdir -p dist/assets/profiles
           cp index.html dist/index.html
+          cp app.js dist/app.js
           cp assets/profiles/*.svg dist/assets/profiles/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
