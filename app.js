@@ -20,8 +20,32 @@ cards:[{id:"c1",ref:"TEST-CARD-0001",profile:"p1",status:"pending",valid:"2027-1
 users:[["Administrator Demo","admin@example.test","System Administrator"],["Pegawai Semakan Demo","reviewer@example.test","Review Officer"],["Pengguna Laporan Demo","reports@example.test","Report Viewer"]],
 audit:[{date:new Date().toISOString(),action:"Sistem demo dimulakan",subject:"IPMS TUDM"}],org:"TUDM Demo"});
 let storagePersistent=true;
+const isValidDb=value=>{
+  if(!value||typeof value!=="object"||Array.isArray(value))return false;
+  if(!Array.isArray(value.profiles)||!Array.isArray(value.requests)||!Array.isArray(value.cards)||!Array.isArray(value.users)||!Array.isArray(value.audit))return false;
+  if(typeof value.org!=="string")return false;
+  const validCategories=["personnel","visitor","contractor"];
+  if(!value.profiles.every(p=>p&&typeof p==="object"&&typeof p.id==="string"&&typeof p.ref==="string"&&typeof p.name==="string"&&validCategories.includes(p.category)&&typeof p.status==="string"))return false;
+  if(!value.requests.every(r=>r&&typeof r==="object"&&typeof r.id==="string"&&typeof r.ref==="string"&&typeof r.status==="string"))return false;
+  if(!value.cards.every(c=>c&&typeof c==="object"&&typeof c.id==="string"&&typeof c.ref==="string"&&typeof c.profile==="string"))return false;
+  if(!value.users.every(u=>Array.isArray(u)&&u.length>=3))return false;
+  if(!value.audit.every(a=>a&&typeof a==="object"&&typeof a.action==="string"&&typeof a.subject==="string"))return false;
+  return true;
+};
 let db;
-try{const raw=window.localStorage.getItem(KEY);db=raw?JSON.parse(raw):seed()}catch(e){storagePersistent=false;db=seed()}
+try{
+  const raw=window.localStorage.getItem(KEY);
+  const stored=raw?JSON.parse(raw):null;
+  if(isValidDb(stored)){
+    db=stored;
+  }else{
+    db=seed();
+    window.localStorage.setItem(KEY,JSON.stringify(db));
+  }
+}catch(e){
+  storagePersistent=false;
+  db=seed();
+}
 const save=()=>{try{window.localStorage.setItem(KEY,JSON.stringify(db));storagePersistent=true;return true}catch(e){storagePersistent=false;return false}};
 const log=(action,subject)=>{db.audit.unshift({date:new Date().toISOString(),action,subject});db.audit=db.audit.slice(0,300);save()};
 const pill=s=>'<span class="pill '+esc(s)+'">'+esc(states[s]||s)+'</span>';
